@@ -36,6 +36,8 @@
             margin-top: 20px;
         }
     </style>
+    <script defer src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
 </head>
 <body>
     <h1>Real-Time Pitch Detection and Visualization</h1>
@@ -44,170 +46,58 @@
     <p>Detected Pitch: <span id="pitch">0</span> Hz</p>
     <p id="note">Note: <span id="noteText"></span> (<span id="koreanNoteText"></span>)</p>
     <canvas id="oscilloscope"></canvas>
+    <div id="output"></div>
     <script>
-        let audioContext;
-        let analyser;
-        let bufferLength;
-        let dataArray;
-        let source;
-        let lastPitch = 1;
+        const {
+            Renderer,
+            Stave,
+            StaveNote,
+            Voice,
+            Formatter,
+        } = Vex.Flow;
 
+        // Create an SVG renderer and attach it to the DIV element with id="output".
+        const div = document.getElementById('output');
+        const renderer = new Renderer(div, Renderer.Backends.SVG);
 
-        document.getElementById('startButton').addEventListener('click', async () => {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
-                bufferLength = analyser.fftSize;
-                dataArray = new Float32Array(bufferLength);
+        // Configure the rendering context.
+        renderer.resize(500, 500);
+        const context = renderer.getContext();
+        context.setFont('Arial', 10);
 
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
+        // Create a stave of width 400 at position 10, 40.
+        const stave = new Stave(10, 40, 400);
 
-                document.getElementById('startButton').disabled = true;
-                document.getElementById('stopButton').disabled = false;
-                drawWaveform();
-                detectPitch();
-            } catch (err) {
-                console.error('Error accessing audio input:', err);
-                alert('Error accessing audio input: ' + err.message);
-            }
-        });
+        // Add a clef and time signature.
+        stave.addClef('treble');
 
-        document.getElementById('stopButton').addEventListener('click', () => {
-            if (audioContext) {
-                source.disconnect();
-                audioContext.close();
-                document.getElementById('startButton').disabled = false;
-                document.getElementById('stopButton').disabled = true;
-            }
-        });
+        // Connect it to the rendering context and draw!
+        stave.setContext(context).draw();
 
-        function drawWaveform() {
-            const canvas = document.getElementById('oscilloscope');
-            const canvasCtx = canvas.getContext('2d');
+        // Create the notes
+        const notes = [
+            // A quarter-note C.
+            new StaveNote({ keys: ["c/4"], duration: "q" }),
 
-            function draw() {
-                requestAnimationFrame(draw);
-                analyser.getFloatTimeDomainData(dataArray);
+            // A quarter-note D.
+            new StaveNote({ keys: ["d/4"], duration: "q" }),
 
-                canvasCtx.fillStyle = 'rgb(200, 200, 200)';
-                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+            // A quarter-note rest. Note that the key (b/4) specifies the vertical
+            // position of the rest.
+            new StaveNote({ keys: ["b/4"], duration: "qr" }),
 
-                canvasCtx.lineWidth = 2;
-                canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-                canvasCtx.beginPath();
+            // A C-Major chord.
+            new StaveNote({ keys: ["c/4", "e/4", "g/4"], duration: "q" }),
+        ];
 
-                const sliceWidth = canvas.width * 1.0 / bufferLength;
-                let x = 0;
+        // Create a voice in 4/4 and add above notes
+        const voice = new Voice({ num_beats: 4, beat_value: 4 });
+        voice.addTickables(notes);
 
-                for (let i = 0; i < bufferLength; i++) {
-                    const v = (dataArray[i] + 1.0) / 2.0;
-                    const y = v * canvas.height;
+        // Format and justify the notes to 400 pixels.
+        new Formatter().joinVoices([voice]).format([voice], 350);
 
-                    if (i === 0) {
-                        canvasCtx.moveTo(x, y);
-                    } else {
-                        canvasCtx.lineTo(x, y);
-                    }
-
-                    x += sliceWidth;
-                }
-
-                canvasCtx.lineTo(canvas.width, canvas.height / 2);
-                canvasCtx.stroke();
-            }
-
-            draw();
-        }
-
-        function YIN(buffer, sampleRate) {
-            const threshold = 0.15;
-            const bufferSize = buffer.length;
-            const yinBuffer = new Float32Array(bufferSize / 2);
-            let probability = 0;
-            let tau;
-
-            for (let t = 1; t < bufferSize / 2; t++) {
-                let sum = 0;
-                for (let i = 0; i < bufferSize / 2; i++) {
-                    const delta = buffer[i] - buffer[i + t];
-                    sum += delta * delta;
-                }
-                yinBuffer[t] = sum;
-            }
-
-            yinBuffer[0] = 1;
-            for (let t = 1, runningSum = 0; t < bufferSize / 2; t++) {
-                runningSum += yinBuffer[t];
-                yinBuffer[t] *= t / runningSum;
-            }
-
-            for (tau = 2; tau < bufferSize / 2; tau++) {
-                if (yinBuffer[tau] < threshold) {
-                    while (tau + 1 < bufferSize / 2 && yinBuffer[tau + 1] < yinBuffer[tau]) {
-                        tau++;
-                    }
-                    probability = 1 - yinBuffer[tau];
-                    break;
-                }
-            }
-
-            if (tau === bufferSize / 2 || yinBuffer[tau] >= threshold) {
-                return -1;
-            }
-
-            let betterTau;
-            const x0 = yinBuffer[tau - 1];
-            const x1 = yinBuffer[tau];
-            const x2 = yinBuffer[tau + 1];
-            betterTau = tau + (x2 - x0) / (2 * (2 * x1 - x2 - x0));
-
-            return sampleRate / betterTau;
-        }
-
-        function detectPitch() {
-            function detect() {
-                analyser.getFloatTimeDomainData(dataArray);
-                const pitch = YIN(dataArray, audioContext.sampleRate);
-                if (pitch > 0 && Math.abs(pitch - lastPitch) >= 1) {
-                    const noteInfo = frequencyToNote(pitch);
-                    document.getElementById('pitch').textContent = Math.round(pitch);
-                    document.getElementById('noteText').textContent = noteInfo.note;
-                    document.getElementById('koreanNoteText').textContent = noteInfo.koreanNote;
-                    document.getElementById('note').style.display = 'block';
-                    lastPitch = Math.round(pitch);
-                } else {
-                    document.getElementById('pitch').textContent = lastPitch;
-                }
-                requestAnimationFrame(detect);
-            }
-
-            detect();
-        }
-
-        function frequencyToNote(frequency) {
-            const noteNames = [
-                { note: 'C', koreanNote: '도' },
-                { note: 'C#', koreanNote: '도#' },
-                { note: 'D', koreanNote: '레' },
-                { note: 'D#', koreanNote: '레#' },
-                { note: 'E', koreanNote: '미' },
-                { note: 'F', koreanNote: '파' },
-                { note: 'F#', koreanNote: '파#' },
-                { note: 'G', koreanNote: '솔' },
-                { note: 'G#', koreanNote: '솔#' },
-                { note: 'A', koreanNote: '라' },
-                { note: 'A#', koreanNote: '라#' },
-                { note: 'B', koreanNote: '시' }
-            ];
-            const octave = Math.floor(12 * Math.log2(frequency / 440) + 69);
-            const noteIndex = (octave + 12) % 12; // Ensure positive index
-            return {
-                note: noteNames[noteIndex].note,
-                koreanNote: noteNames[noteIndex].koreanNote
-            };
-        }
+        // Render voice
+        voice.draw(context, stave);        
     </script>
 </body>
