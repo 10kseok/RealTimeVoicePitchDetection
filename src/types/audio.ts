@@ -1,11 +1,18 @@
 export interface AudioState {
   isRecording: boolean;
-  pitch: number | null;
-  note: string | null;
+  hasPermission: boolean;
+  error: string | null;
+  currentNote: string | null;
+  currentFrequency: number | null;
+}
+
+export interface AudioContextState {
+  audioContext: AudioContext | null;
+  analyser: AnalyserNode | null;
+  mediaStream: MediaStream | null;
 }
 
 export interface PitchDetectionResult {
-  pitch: number;
+  frequency: number;
   note: string;
-  confidence: number;
 } 
