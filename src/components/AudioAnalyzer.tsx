@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import { useAudioAnalyzer } from '../hooks/useAudioAnalyzer';
 import { RecordButton } from './RecordButton';
 import { PitchDisplay } from './PitchDisplay';
+import { StaffDisplay } from './StaffDisplay';
 import { ErrorMessage } from './ErrorMessage';
 
 export function AudioAnalyzer() {
@@ -14,7 +15,7 @@ export function AudioAnalyzer() {
       alignItems="center"
       justifyContent="center"
       minHeight="100vh"
-      gap={2}
+      gap={3}
     >
       <RecordButton 
         isRecording={audioState.isRecording}
@@ -22,10 +23,15 @@ export function AudioAnalyzer() {
       />
 
       {audioState.isRecording && (
-        <PitchDisplay
-          note={audioState.currentNote}
-          frequency={audioState.currentFrequency}
-        />
+        <>
+          <PitchDisplay
+            note={audioState.currentNote}
+            frequency={audioState.currentFrequency}
+          />
+          <StaffDisplay
+            note={audioState.currentNote}
+          />
+        </>
       )}
 
       <ErrorMessage error={audioState.error} />

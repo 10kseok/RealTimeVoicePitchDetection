@@ -16,3 +16,22 @@ export const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#'
 // A4 = 440Hz를 기준으로 한 주파수 계산
 export const A4_FREQUENCY = 440;
 export const A4_NOTE_INDEX = 69; // MIDI note number for A4 
+
+export const STAFF_CONFIG = {
+  width: 300,
+  height: 150,
+  staveWidth: 120,
+  yPosition: 40,
+} as const;
+
+export const STAFF_RENDER_CONFIG = {
+  font: {
+    name: 'Arial',
+    size: 10,
+  },
+  voice: {
+    numBeats: 1,
+    beatValue: 4,
+  },
+  noteSpacing: 50, // 음표와 악보 끝 사이의 여백
+} as const; 

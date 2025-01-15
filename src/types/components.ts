@@ -10,4 +10,8 @@ export interface PitchDisplayProps {
 
 export interface ErrorMessageProps {
   error: string | null;
+}
+
+export interface StaffDisplayProps {
+  note: string | null;
 } 
