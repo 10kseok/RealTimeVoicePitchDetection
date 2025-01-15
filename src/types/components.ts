@@ -5,7 +5,6 @@ export interface RecordButtonProps {
 
 export interface PitchDisplayProps {
   note: string | null;
-  frequency: number | null;
 }
 
 export interface ErrorMessageProps {

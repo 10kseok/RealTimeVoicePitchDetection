@@ -99,7 +99,7 @@ export function useAudioAnalyzer() {
     if (newIsRecording) {
       await initializeAudio();
     }
-  }, [audioState.hasPermission, audioCtxState.mediaStream, initializeAudio]);
+  }, [audioCtxState.mediaStream, audioState.isRecording, initializeAudio]);
 
   // 녹음 상태 변경 시 피치 분석 시작/중지
   useEffect(() => {

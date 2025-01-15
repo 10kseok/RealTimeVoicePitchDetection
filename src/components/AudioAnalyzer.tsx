@@ -25,7 +25,6 @@ export function AudioAnalyzer() {
           />
           <PitchDisplay
             note={audioState.currentNote}
-            frequency={audioState.currentFrequency}
           />
         </>
       )}

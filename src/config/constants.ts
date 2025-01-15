@@ -35,3 +35,18 @@ export const STAFF_RENDER_CONFIG = {
   },
   noteSpacing: 50, // 음표와 악보 끝 사이의 여백
 } as const; 
+
+export const NOTE_TO_KOR_MAP = {
+  'C': '도',
+  'C#': '도#',
+  'D': '레',
+  'D#': '레#',
+  'E': '미',
+  'F': '파',
+  'F#': '파#',
+  'G': '솔',
+  'G#': '솔#',
+  'A': '라',
+  'A#': '라#',
+  'B': '시'
+} as const; 
