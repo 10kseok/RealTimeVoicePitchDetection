@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/RealTimeVoicePitchDetection/static/js/main.c5d1e59d.js",
+    "main.js": "/RealTimeVoicePitchDetection/static/js/main.e4884496.js",
     "index.html": "/RealTimeVoicePitchDetection/index.html",
-    "main.c5d1e59d.js.map": "/RealTimeVoicePitchDetection/static/js/main.c5d1e59d.js.map"
+    "main.e4884496.js.map": "/RealTimeVoicePitchDetection/static/js/main.e4884496.js.map"
   },
   "entrypoints": [
-    "static/js/main.c5d1e59d.js"
+    "static/js/main.e4884496.js"
   ]
 }
