@@ -17,22 +17,23 @@ export function AudioAnalyzer() {
       minHeight="100vh"
       gap={3}
     >
-      <RecordButton 
-        isRecording={audioState.isRecording}
-        onClick={toggleRecording}
-      />
-
+      
       {audioState.isRecording && (
         <>
+          <StaffDisplay
+              note={audioState.currentNote}
+          />
           <PitchDisplay
             note={audioState.currentNote}
             frequency={audioState.currentFrequency}
           />
-          <StaffDisplay
-            note={audioState.currentNote}
-          />
         </>
       )}
+
+      <RecordButton 
+        isRecording={audioState.isRecording}
+        onClick={toggleRecording}
+      />
 
       <ErrorMessage error={audioState.error} />
     </Box>
