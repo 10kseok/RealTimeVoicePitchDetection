@@ -19,8 +19,8 @@ export const A4_NOTE_INDEX = 69; // MIDI note number for A4
 
 export const STAFF_CONFIG = {
   width: 300,
-  height: 150,
-  staveWidth: 120,
+  height: 200,
+  staveWidth: 150,
   yPosition: 40,
 } as const;
 

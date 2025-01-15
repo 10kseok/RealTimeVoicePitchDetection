@@ -20,6 +20,8 @@ export function StaffDisplay({ note }: StaffDisplayProps) {
         maxWidth: STAFF_CONFIG.width,
         height: STAFF_CONFIG.height,
         margin: '0 auto',
+        overflow: 'visible',
+        position: 'relative',
       }}
     />
   );
