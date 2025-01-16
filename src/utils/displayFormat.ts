@@ -1,5 +1,9 @@
 import { NOTE_TO_KOR_MAP } from '../config/constants';
 
+function octaveToVoice(octave: number): number {
+  return octave - 2;
+}
+
 export function formatNoteToKorean(note: string): string {
   if (!note) return '';
   
@@ -9,5 +13,5 @@ export function formatNoteToKorean(note: string): string {
   const [, noteName, octave] = noteMatch;
   const koreanNote = NOTE_TO_KOR_MAP[noteName as keyof typeof NOTE_TO_KOR_MAP];
   
-  return `${octave}옥타브 ${koreanNote}`;
-} 
+  return `${octaveToVoice(Number(octave))}옥타브 ${koreanNote}`;
+}

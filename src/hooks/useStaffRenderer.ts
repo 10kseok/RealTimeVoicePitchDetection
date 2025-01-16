@@ -41,8 +41,9 @@ export function useStaffRenderer(containerElement: HTMLDivElement | null, config
     }
 
     const noteName = note.slice(0, -1).toLowerCase();
-    const octave = note.slice(-1);
-    const formattedNote = `${noteName}/${octave}`;
+    const octave = parseInt(note.slice(-1));
+    const transposedOctave = octave + 1;
+    const formattedNote = `${noteName}/${transposedOctave}`;
 
     const staveNote = new StaveNote({
       keys: [formattedNote],
